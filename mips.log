@@ -1,0 +1,68 @@
+Running: E:\Program\xIlinx\14.7\ISE_DS\ISE\bin\nt64\unwrapped\fuse.exe -nodebug -prj mips.prj -o mips.exe generated_mips_test 
+ISim P.20131013 (signature 0x7708f090)
+Number of CPUs detected in this system: 16
+Turning on mult-threading, number of parallel sub-compilation jobs: 32 
+Determining compilation order of HDL files
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/ALU.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/BRIDGE.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/CMP.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/constants.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/CP0.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/CPU.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/CTRL.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/DM.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/EX.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/EXT.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/EX_MEM.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/generated_mips_test.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/GRF.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/HAZARD_CTRL.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/ID.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/ID_EX.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/IF.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/IF_ID.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/IM.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/MEM.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/MEM_EXT.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/MEM_WB.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/mips.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/mips_tb.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/MULT_DIV.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/NPC.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/P7_standard_timer_2019.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/PC.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/tb_CTRL.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/tb_IF.v" into library work
+Analyzing Verilog file "E:\Documents\computer_organization\P7\p7_ans/tb_mips.v" into library work
+Starting static elaboration
+Completed static elaboration
+Compiling module PC
+Compiling module IF
+Compiling module IF_ID
+Compiling module EXT
+Compiling module CMP
+Compiling module NPC
+Compiling module CTRL
+Compiling module GRF
+Compiling module ID
+Compiling module ID_EX
+Compiling module ALU
+Compiling module MULT_DIV
+Compiling module EX
+Compiling module EX_MEM
+Compiling module MEM_EXT
+Compiling module MEM
+Compiling module MEM_WB
+Compiling module HAZARD_CTRL
+Compiling module CP0
+Compiling module CPU
+Compiling module BRIDGE
+Compiling module TC
+Compiling module mips
+Compiling module generated_mips_test
+Time Resolution for simulation is 1ps.
+Waiting for 1 sub-compilation(s) to finish...
+Compiled 24 Verilog Units
+Built simulation executable mips.exe
+Fuse Memory Usage: 41912 KB
+Fuse CPU Usage: 343 ms

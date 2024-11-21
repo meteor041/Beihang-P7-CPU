@@ -1,0 +1,14 @@
+**** module/scope: HAZARD_CTRL
+     Flip-Flops   : 0
+     Logic Gates  : 1389
+     EQUALITY[5]: 20 units
+     EQUALITY[32]: 4 units
+     MAGNITUDE[2]: 4 units
+     MUX[2]: 448 slices
+**** TOTALS
+     Flip-Flops   : 0
+     Logic Gates  : 1389
+     EQUALITY[5]: 20 units
+     EQUALITY[32]: 4 units
+     MAGNITUDE[2]: 4 units
+     MUX[2]: 448 slices

@@ -1,0 +1,1 @@
+-nodebug -i "./" -o "mips.exe" "mips_txt" 
