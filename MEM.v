@@ -67,7 +67,7 @@ module MEM(
         // .LOAD(LOAD)
         .MTC0(MEM_MTC0)
     );
-    assign MEM_WB_A3 = MEM_A3;
+    assign MEM_WB_A3 = (req || CP0_enable) ? 5'd0 : MEM_A3;
 
 /*--------------------------------LOAD类指令,读出Memory数据并进行扩展-------------------------------*/
     wire [31:0] LOAD_DATA;
@@ -121,32 +121,33 @@ module MEM(
     assign MEM_INST_ADDR = MEM_PC;
 
     // 地址未对齐
-    wire NOT_ALIGN = (MEM_PART == `memWord && addr[1:0] != 2'b00)
-                    || (MEM_PART == `memHalf && addr[0] != 1'b0);
-    wire AdEL = /*lw取数地址未与 4 字节对齐。lh取数地址未与 2 字节对齐。*/
-                (MEM_Sel && NOT_ALIGN) || 
-                 /*lh,lb取Timer寄存器的值。*/
-                (MEM_Sel && (MEM_PART == `memHalf || MEM_PART == `memByte) && 
-                    (addr >= 32'h7f00 && addr <= 32'h7f0b) && (addr >= 32'h7f10 && addr <= 32'h7f1b)) ||
-                /*load 型指令	取数地址超出 DM、Timer0、Timer1、中断发生器的范围。*/
-                (MEM_Sel && !((addr >= 32'h0000 && addr <= 32'h2fff) || (addr >= 32'h3000 && addr <= 32'h6fff)
-                    || (addr >= 32'h7f00 && addr <= 32'h7f0b) || (addr >= 32'h7f10 && addr <= 32'h7f1b)
-                    || (addr >= 32'h7f20 && addr <= 32'h7f23)) )                
-                ? 1 : 0;
-    wire AdES = /*sw存数地址未 4 字节对齐。sh存数地址未 2 字节对齐。*/
-                (WE && NOT_ALIGN) ||
-                /*sh, sb存 Timer 寄存器的值。*/
-                (WE && (MEM_PART == `memHalf || MEM_PART == `memByte) 
-                    && (addr >= 32'h7f00 && addr <= 32'h7f0b) || (addr >= 32'h7f10 && addr <= 32'h7f1b)) ||
-                /*store 型指令向计时器的Count寄存器存值。*/
-                (WE && (addr  == 32'h7f08 || addr == 32'h7f18)) ||
-                /*store 型指令存数地址超出 DM、Timer0、Timer1、中断发生器的范围。*/
-                (WE && !((addr >= 32'h0000 && addr <= 32'h2fff) || (addr >= 32'h3000 && addr <= 32'h6fff)
-                    || (addr >= 32'h7f00 && addr <= 32'h7f0b) || (addr >= 32'h7f10 && addr <= 32'h7f1b)
-                    || (addr >= 32'h7f20 && addr <= 32'h7f23))) 
-                ? 1 : 0;
-    assign MEM_WB_ExcCode = (MEM_ExcCode) ? MEM_ExcCode :
-                            (AdEL) ? `AdEL:
-                            (AdES) ? `AdES:
-                            5'b0;
+    // wire NOT_ALIGN = (MEM_PART == `memWord && addr[1:0] != 2'b00)
+    //                 || (MEM_PART == `memHalf && addr[0] != 1'b0);
+    // wire AdEL = /*lw取数地址未与 4 字节对齐。lh取数地址未与 2 字节对齐。*/
+    //             (MEM_Sel && NOT_ALIGN) || 
+    //              /*lh,lb取Timer寄存器的值。*/
+    //             (MEM_Sel && (MEM_PART == `memHalf || MEM_PART == `memByte) && 
+    //                 (addr >= 32'h7f00 && addr <= 32'h7f0b) && (addr >= 32'h7f10 && addr <= 32'h7f1b)) ||
+    //             /*load 型指令	取数地址超出 DM、Timer0、Timer1、中断发生器的范围。*/
+    //             (MEM_Sel && !((addr >= 32'h0000 && addr <= 32'h2fff) || (addr >= 32'h3000 && addr <= 32'h6fff)
+    //                 || (addr >= 32'h7f00 && addr <= 32'h7f0b) || (addr >= 32'h7f10 && addr <= 32'h7f1b)
+    //                 || (addr >= 32'h7f20 && addr <= 32'h7f23)) )                
+    //             ? 1 : 0;
+    // wire AdES = /*sw存数地址未 4 字节对齐。sh存数地址未 2 字节对齐。*/
+    //             (WE && NOT_ALIGN) ||
+    //             /*sh, sb存 Timer 寄存器的值。*/
+    //             (WE && (MEM_PART == `memHalf || MEM_PART == `memByte) 
+    //                 && (addr >= 32'h7f00 && addr <= 32'h7f0b) || (addr >= 32'h7f10 && addr <= 32'h7f1b)) ||
+    //             /*store 型指令向计时器的Count寄存器存值。*/
+    //             (WE && (addr  == 32'h7f08 || addr == 32'h7f18)) ||
+    //             /*store 型指令存数地址超出 DM、Timer0、Timer1、中断发生器的范围。*/
+    //             (WE && !((addr >= 32'h0000 && addr <= 32'h2fff) || (addr >= 32'h3000 && addr <= 32'h6fff)
+    //                 || (addr >= 32'h7f00 && addr <= 32'h7f0b) || (addr >= 32'h7f10 && addr <= 32'h7f1b)
+    //                 || (addr >= 32'h7f20 && addr <= 32'h7f23))) 
+    //             ? 1 : 0;
+    assign MEM_WB_ExcCode = MEM_ExcCode;
+    // (MEM_ExcCode) ? MEM_ExcCode :
+                            // (AdEL) ? `AdEL:
+                            // (AdES) ? `AdES:
+                            // 5'b0;
 endmodule

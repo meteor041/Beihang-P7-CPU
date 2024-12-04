@@ -20,6 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 module HAZARD_CTRL(
     // ID
+    input wire [31:0] ID_instr,
     input wire [4:0] ID_A1,
     input wire [4:0] ID_A2,
     input wire [31:0] ID_RD1,
@@ -29,6 +30,7 @@ module HAZARD_CTRL(
     input wire ID_MD,
     input wire ID_Eret, // EX阶段正在执行Eret指令
     // EX
+    input wire [31:0] EX_instr,
     input wire [4:0] EX_A1,
     input wire [4:0] EX_A2,
     input wire [31:0] EX_RD1,
@@ -40,6 +42,7 @@ module HAZARD_CTRL(
     input wire MULT_DIV_START,
     input wire EX_MTC0, // EX阶段正在传递mtc0指令
     // MEM
+    input wire [31:0] MEM_instr,
     input wire [4:0] MEM_A2,
     input wire [31:0] MEM_RD2,
     input wire [1:0] MEM_A2_NEW,
@@ -59,8 +62,7 @@ module HAZARD_CTRL(
     output wire Enable_PC,
     output wire Enable_IF_ID,
     output wire Enable_ID_EX,
-    output wire Flush_ID_EX,
-    output wire Flush_EX_MEM
+    output wire Flush_ID_EX
     );
 
 /*-------------------------------暂停-----------------------------------*/
@@ -71,14 +73,13 @@ module HAZARD_CTRL(
                  || (ID_A2 == MEM_A3 && ID_A2_USE < MEM_A2_NEW && MEM_A3 != 0)
                  || (ID_MD && (MULT_DIV_BUSY || MULT_DIV_START))
                  /*ID区eret使用CP0中的EPC,与EX/MEM区mtc0指令对EPC写入值冲突*/
-                 || (ID_Eret && ((EX_MTC0 && EX_A3 == 5'D14) || (MEM_MTC0 && MEM_A3 == 5'd14))); 
+                 || (ID_Eret && ((EX_MTC0 && EX_instr[15:11] == 5'D14) || (MEM_MTC0 && MEM_instr[15:11] == 5'd14))); 
     assign Enable_PC = !STALL;
     assign Enable_IF_ID = !STALL;
     assign Flush_ID_EX = STALL;
 
 
 
-    assign Flush_EX_MEM = 1'b0;
     assign Enable_ID_EX = 1'b1;
 
 /*-------------------------------转发-----------------------------------*/

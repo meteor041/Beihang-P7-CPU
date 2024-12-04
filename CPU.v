@@ -75,6 +75,7 @@ module CPU(
     wire [4:0] WB_A3;
     wire [31:0] WB_PC;
 
+    wire [31:0] ID_EX_instr;
     wire [31:0] ID_RD1;
     wire [31:0] ID_RD2;
     wire [31:0] ID_IMM32;
@@ -99,6 +100,7 @@ module CPU(
         .WB_A3(WB_A3), // 写入寄存器地址,来自于WB阶段
         .WB_PC(WB_PC), // 写入数据对应PC地址,传递给$display语句,作为显示,来自于WB阶段
         .EPC_out(EPC_out),
+        .ID_EX_instr(ID_EX_instr),
         .ID_RD1(ID_RD1), // ID输出rs寄存器读出值
         .ID_RD2(ID_RD2), // ID输出rt寄存器读出值
         .ID_IMM32(ID_IMM32), // ID输出经过位扩展的立即数
@@ -133,7 +135,7 @@ module CPU(
         .req(req),
         .flush(Flush_ID_EX), // 冲洗信号
         .ID_PC(ID_PC),
-        .ID_instr(ID_instr),
+        .ID_instr(ID_EX_instr),
         .ID_RD1(ID_RD1_forward),
         .ID_RD2(ID_RD2_forward),
         .ID_imm32(ID_IMM32),
@@ -168,6 +170,7 @@ module CPU(
     EX uvv5(
         .clk(clk),
         .reset(reset),
+        .req(req),
         .EX_instr(EX_instr), // EX阶段的指令
         .EX_imm32(EX_imm32), // 32位扩展的立即数
         .EX_WD(EX_WD), // EX阶段接收的写入寄存器堆的数据
@@ -185,7 +188,6 @@ module CPU(
     );
 
     /*EX,MEM间流水寄存器*/
-    wire Flush_EX_MEM;
     wire [31:0] MEM_PC;
     wire [31:0] MEM_instr;
     wire [4:0] MEM_A3;
@@ -196,7 +198,6 @@ module CPU(
     EX_MEM uvv6(
         .clk(clk),
         .reset(reset),
-        .flush(Flush_EX_MEM), //冲洗EX,MEM间流水寄存器的信号
         .req(req),
         .EX_PC(EX_PC), // EX阶段PC地址
         .EX_instr(EX_instr),
@@ -255,7 +256,7 @@ module CPU(
         .EXL_clr(EXL_clr),
         .MEM_MTC0(MEM_MTC0)
     );
-
+    
     /*MEM,WB间流水寄存器*/
     wire [31:0] WB_instr;
     assign w_grf_we = 1;
@@ -289,6 +290,7 @@ module CPU(
     assign MEM_A2 = MEM_instr[20:16];
     HAZARD_CTRL uvv9(
         // ID
+        .ID_instr(ID_instr),
         .ID_A1(ID_A1),
         .ID_A2(ID_A2),
         .ID_RD1(ID_RD1),
@@ -298,6 +300,7 @@ module CPU(
         .ID_MD(ID_MD),
         .ID_Eret(ID_Eret),
         // EX
+        .EX_instr(EX_instr),
         .EX_A1(EX_A1),
         .EX_A2(EX_A2),
         .EX_RD1(EX_RD1),
@@ -309,6 +312,7 @@ module CPU(
         .MULT_DIV_START(MULT_DIV_START),
         .EX_MTC0(EX_MTC0),
         // MEM
+        .MEM_instr(MEM_instr),
         .MEM_A2(MEM_A2),
         .MEM_RD2(MEM_RD2),
         .MEM_A2_NEW(MEM_A2_NEW),
@@ -328,8 +332,7 @@ module CPU(
         .Enable_PC(Enable_PC),
         .Enable_IF_ID(Enable_IF_ID),
         .Enable_ID_EX(Enable_ID_EX),
-        .Flush_ID_EX(Flush_ID_EX),
-        .Flush_EX_MEM(Flush_EX_MEM)
+        .Flush_ID_EX(Flush_ID_EX)
     );
 
     CP0 cp0(
@@ -337,13 +340,13 @@ module CPU(
         .reset(reset),
         .enable(CP0_enable),
         .CP0_addr(mfc0_rd),
-        .CP0_in(WB_WD),
+        .CP0_in(MEM_RD2_forward),
         .CP0_out(CP0_out), // out
         .VPC(MEM_PC),
         .BD_in(MEM_BD),
         .ExcCode_in(MEM_WB_ExcCode),
         .HW_Int(HW_Int),
-        .EXL_clr(EXL_clr),
+        .EXL_clr(ID_Eret),
         /*output*/
         .EPC_out(EPC_out),
         .Req(req),

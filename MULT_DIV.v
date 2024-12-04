@@ -22,6 +22,7 @@
 module MULT_DIV(
     input wire clk,
     input wire reset,
+    input wire req,
     input wire [31:0] A,
     input wire [31:0] B,
     input wire start,
@@ -46,13 +47,13 @@ module MULT_DIV(
             LO <= 32'b0;
         end
         else if (cnt==0)begin
-            if (MTHI == 1)begin
+            if (MTHI == 1 && req == 0)begin
               HI <= A;
             end
-            else if (MTLO == 1)begin
+            else if (MTLO == 1 && req == 0)begin
               LO <= A;
             end
-            else if (start == 1)begin
+            else if (start == 1 && req == 0)begin
                 busy <= 1;
                 if (MULT_DIV_OP == `mult)begin
                     {hi, lo} <= $signed(A) * $signed(B);
@@ -72,6 +73,7 @@ module MULT_DIV(
                     lo <= $unsigned(A) / $unsigned(B);
                     cnt <= 10;
                 end 
+                // $display("%f %f\n", hi, lo);
             end
         end
         else if (cnt == 1)begin

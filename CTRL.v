@@ -184,13 +184,13 @@ module CTRL(
     assign ID_A1_USE = (branch || cal_jr) ? 2'd0 : // ID阶段立即使用(跳转指令)
                        (cal_r || cal_i || cal_md || store_md || load || store) ? 2'd1 : // EX阶段再使用(涉及ALU/MULT_DIV的指令)
                        (load_md || cal_jal || eret || mfc0 || mtc0 || syscall) ? 2'd3 :  // 3表示该指令在后面的流水线中不会用到该指令
-                       2'dz; 
+                       2'd3; 
     // rt的$T_{USE}$
     assign ID_A2_USE = (branch) ? 2'd0 : // ID阶段立即使用(跳转指令)
                        (cal_r || cal_md) ? 2'd1 : // EX阶段再使用(涉及ALU的指令)
                        (store || mtc0) ? 2'd2 : // MEM阶段再使用rt寄存器(涉及store的指令)
                        (cal_jal || cal_i || cal_jr || load_md || load || store_md || eret || mfc0 || syscall) ? 2'd3 : // 3表示该指令在后面的流水线中不会用到该指令
-                       2'dz;
+                       2'd3;
     // CMP部件控制信号(选择CMP比较方式)
     assign CMPControl = (beq) ? `cmpBeq :
                         (bgez) ? `cmpBgez :
@@ -225,7 +225,7 @@ module CTRL(
     assign ALU_A_Sel = 0;
     // 选择32位立即数或者寄存器rt的值(1:选择32位立即数;      0:选择寄存器rt的值)
     assign ALU_B_Sel = (ori || lw || sw || lui || lb || sb || lh || sh || addi || andi) ? 1'b1 :
-                       (add || sub || and_ || or_ || slt || sltu) ?  1'b0 :
+                       (add || sub || and_ || or_ || slt || sltu || mtc0) ?  1'b0 :
                         1'bz;
     // 选择WriteData来源(1:ID阶段的PC+8;                    0:ALURes)
     assign WD_Sel = (jal) ? 1 : 0;
@@ -233,7 +233,7 @@ module CTRL(
     assign EX_NEW = (cal_r || cal_i || load_md) ? 2'd1:// 再过1个时钟周期该寄存器的写入数据就会从EX_MEM间流水寄存器流出
                     (load || mfc0) ? 2'd2 : // 再过2个时钟周期该寄存器的写入数据就会从MEM_WB间流水寄存器流出
                     (store || cal_jal || cal_jr || cal_md || store_md || branch || syscall || mtc0 || eret) ? 2'd0 : // 已经流出或者没有对寄存器写入数值的操作
-                    2'dz;
+                    2'd0;
     // 乘除模块计算方式
     assign MULT_DIV_OP = (mult) ? `mult : // signed数相乘
                          (div) ? `div : // signed数相除
@@ -257,8 +257,8 @@ module CTRL(
     assign MEM_Sel = (lw || lh || lb) ? 1 : 0;
     // MEM$T_{NEW}$
     assign MEM_A2_NEW = (load || mfc0) ? 2'd1 :  // 再过1个时钟周期该寄存器的写入数据就会从MEM_WB间流水寄存器流出
-                        (store || cal_r || cal_i || cal_jal || cal_jr || cal_md || load_md || store_md || branch || syscall) ? 2'd0 :
-                        2'dz;
+                        (store || cal_r || cal_i || cal_jal || cal_jr || cal_md || load_md || store_md || branch || syscall || mtc0) ? 2'd0 :
+                        2'd0;
     // 选择存入/读取Word,Half或者Byte
     assign MEM_PART = (sw || lw) ? `memWord :
                       (sh || lh) ? `memHalf :

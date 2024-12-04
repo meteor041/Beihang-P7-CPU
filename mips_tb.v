@@ -115,7 +115,8 @@ module mips_txt;
 
 	assign fixed_macroscopic_pc = macroscopic_pc & 32'hfffffffc;
 
-	parameter target_pc = 32'h30003010;
+	parameter target_pc1 = 32'h30003018;
+	parameter target_pc2 = 32'h30003014;
 
 	integer count;
 
@@ -133,9 +134,9 @@ module mips_txt;
 					interrupt = 0;
 				end
 			end
-			else if (fixed_macroscopic_pc == target_pc) begin
+			else if ((fixed_macroscopic_pc == target_pc1) || (fixed_macroscopic_pc == target_pc2)) begin
 				if (count == 0) begin
-					count = 1;
+					count = count + 1;
 					interrupt = 1;
 				end
 			end

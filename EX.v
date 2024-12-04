@@ -23,6 +23,7 @@
 module EX(
     input wire clk,
     input wire reset,
+    input wire req,
     input wire [31:0] EX_instr,
     input wire [31:0] EX_imm32,
     input wire [31:0] EX_WD,
@@ -52,6 +53,7 @@ module EX(
     wire MTC0;  
     wire LOAD;
     wire STORE;
+    wire [1:0] MEM_PART;
     assign EX_MTC0 = MTC0;
     CTRL ex_control(
         .instr(EX_instr),
@@ -68,7 +70,8 @@ module EX(
         .MFLO(MFLO),
         .MTC0(MTC0),
         .LOAD(LOAD),
-        .STORE(STORE)
+        .STORE(STORE),
+        .MEM_PART(MEM_PART)
     );
 
 /*---------------------------ALU---------------------------------------*/
@@ -103,6 +106,7 @@ module EX(
     MULT_DIV mult_div(
         .clk(clk),
         .reset(reset),
+        .req(req),
         .A(EX_RD1_forward),
         .B(EX_RD2_forward),
         .start(MULT_DIV_START),
@@ -115,11 +119,42 @@ module EX(
     );
 
     assign MULT_DIV_BUSY = busy;
+
+    // 地址未对齐
+    wire [31:0] addr = ALURes;
+    wire NOT_ALIGN = (MEM_PART == `memWord && addr[1:0] != 2'b00)
+                    || (MEM_PART == `memHalf && addr[0] != 1'b0);
+    wire AdEL = /*lw取数地址未与 4 字节对齐。lh取数地址未与 2 字节对齐。*/
+                (LOAD && NOT_ALIGN) || 
+                 /*lh,lb取Timer寄存器的值。*/
+                (LOAD && (MEM_PART == `memHalf || MEM_PART == `memByte) && 
+                    ((addr >= 32'h7f00 && addr <= 32'h7f0b) || (addr >= 32'h7f10 && addr <= 32'h7f1b))) ||
+                /*load 型指令	取数地址超出 DM、Timer0、Timer1、中断发生器的范围。*/
+                (LOAD && !((addr >= 32'h0000 && addr <= 32'h2fff)
+                        || (addr >= 32'h7f00 && addr <= 32'h7f0b) 
+                        || (addr >= 32'h7f10 && addr <= 32'h7f1b)
+                        || (addr >= 32'h7f20 && addr <= 32'h7f23)) )     ||
+                /*load 型指令	计算地址时加法溢出。*/
+                (overflow && LOAD)           
+                ? 1 : 0;
+    wire AdES = /*sw存数地址未 4 字节对齐。sh存数地址未 2 字节对齐。*/
+                (STORE && NOT_ALIGN) ||
+                // /*sh, sb存 Timer 寄存器的值。*/
+                (STORE && (MEM_PART == `memHalf || MEM_PART == `memByte) 
+                    && ((addr >= 32'h7f00 && addr <= 32'h7f0b) || (addr >= 32'h7f10 && addr <= 32'h7f1b))) ||
+                /*store 型指令向计时器的Count寄存器存值。*/
+                (STORE && (addr  == 32'h7f08 || addr == 32'h7f18)) ||
+                /*store 型指令存数地址超出 DM、Timer0、Timer1、中断发生器的范围。*/
+                (STORE && !((addr >= 32'h0000 && addr <= 32'h2fff) 
+                         || (addr >= 32'h7f00 && addr <= 32'h7f0b) 
+                         || (addr >= 32'h7f10 && addr <= 32'h7f1b)
+                         || (addr >= 32'h7f20 && addr <= 32'h7f23)))  ||
+                /*store 型指令	计算地址加法溢出。*/
+                (overflow && STORE)
+                ? 1 : 0;
     assign EX_MEM_ExcCode = (EX_ExcCode != 5'b0) ? EX_ExcCode :
-                            /*load 型指令	计算地址时加法溢出。*/
-                            (overflow && LOAD) ? `AdEL :
-                            /*store 型指令	计算地址加法溢出。*/
-                            (overflow && STORE) ? `AdES :
+                            AdEL ? `AdEL :
+                            AdES ? `AdES :
                             /*算术溢出。*/
                             (overflow) ? `Ov :
                             5'd0;

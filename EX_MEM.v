@@ -21,7 +21,7 @@
 module EX_MEM(
     input wire clk,
     input wire reset,
-    input wire flush,
+    // input wire flush,
     input wire req,
     input wire [31:0] EX_PC,
     input wire [31:0] EX_instr,
@@ -42,6 +42,10 @@ module EX_MEM(
     output reg [4:0] MEM_ExcCode
     );
 
+    // reg last_req;
+    // always @(posedge clk)begin
+    //   last_req = req;
+    // end
     initial begin
         MEM_PC = 32'h3000;
         MEM_instr= 32'b0;
@@ -53,8 +57,10 @@ module EX_MEM(
         MEM_ExcCode = 5'b0;
     end
     always @(posedge clk)begin
-        if (reset || flush || req)begin
-            MEM_PC = (req == 1'b1) ? 32'h0000_4180 : 32'h3000;
+        if (reset || req)begin
+            MEM_PC = (req == 1'b1) ?    32'h0000_4180 : 
+                    //  (flush == 1'b1) ?  MEM_PC :
+                                        32'h3000;
             MEM_instr= 32'b0;
             MEM_A3 = 5'b0;
             MEM_WD = 32'b0;

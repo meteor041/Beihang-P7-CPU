@@ -50,7 +50,10 @@ module mips(
     wire [5:0] HW_Int;
     wire IRQ0;
     wire IRQ1;
-    assign HW_Int = {3'b0, interrupt, IRQ1, IRQ0};
+    /*Timer0 输出的中断信号接入 HWInt[0] (最低中断位)，
+    Timer1 输出的中断信号接入 HWInt[1]，
+    来自中断发生器的中断信号接入 HWInt[2]。*/
+    assign HW_Int = {3'b0, interrupt, IRQ1, IRQ0}; 
     wire [3:0] tmp_m_data_byteen;
     wire [31:0] PR_RD;
     CPU cpu(

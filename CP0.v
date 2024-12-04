@@ -51,6 +51,7 @@ module CP0(
             EPC <= 32'b0;
         end
         else begin
+            `IP <= HW_Int & `IM;
             if (EXL_clr)begin
                 // 复位EXL
                 `EXL <= 1'b0;
@@ -58,28 +59,23 @@ module CP0(
             if (Req)begin
                 // 检测到异常或者中断
                 `EXL <= 1'b1;
-                `IE <= 1'b1;
                 `BD <= BD_in;
-                `IP <= HW_Int;
                 `ExcCode <= (IntReq) ? 5'd0 : ExcCode_in;
-                EPC <= (BD_in == 1) ? VPC - 32'D4 : VPC;
+                EPC <= (BD_in == 1) ? (VPC - 32'D4) : VPC;
             end
             else if (enable)begin
                 // 写入CP0寄存器
                 if (CP0_addr == 5'd12)begin
                     SR <= CP0_in;
                 end
-                else if (CP0_addr == 5'd13)begin
-                    Cause <= CP0_in;
-                end
                 else if (CP0_addr == 5'd14)begin
                     EPC <= CP0_in;
                 end
-            else begin
-                $display("Wrong register path in CP0!!!\n");
+                else begin
+                    $display("Wrong register path in CP0!!!\n");
+                end
             end
         end
-      end
     end
 
     /*优先级:reset>Req>flush/stall
@@ -89,13 +85,13 @@ module CP0(
     // 外设中断信号
     wire IntReq;
     assign ExcReq = (`EXL == 1'b0 && ExcCode_in != 5'b0) ? 1 : 0;
-    assign IntReq = (`EXL == 1'b0 && `IE == 1'b1 && |(`IM & HW_Int)) ? 1 : 0;
+    assign IntReq = (`EXL == 1'b0 && `IE == 1'b1 && (|(`IM & HW_Int))) ? 1 : 0;
     assign Req = (ExcReq || IntReq) ? 1 : 0;
 
     assign CP0_out = (CP0_addr == 5'd12) ? SR :
                      (CP0_addr == 5'd13) ? Cause :
                      (CP0_addr == 5'd14) ? EPC :
-                     32'bz;
+                     32'bx;
    
     assign EPC_out = EPC;
 

@@ -35,6 +35,7 @@ module ID(
     input wire [31:0] WB_PC, // 写入数据对应PC地址,传递给$display语句,作为显示,来自于WB阶段
     input wire [31:0] EPC_out, // eret指定跳转地址
     /*ID输出*/
+    output wire [31:0] ID_EX_instr,
     output wire [31:0] ID_RD1, // ID输出rs寄存器读出值
     output wire [31:0] ID_RD2, // ID输出rt寄存器读出值
     output wire [31:0] ID_IMM32,  // ID输出经过位扩展的立即数
@@ -147,6 +148,7 @@ module ID(
     
 /*--------------------------输出------------------------------------------*/
     wire[31:0] PC_PLUS_EIGHT;
+    assign ID_EX_instr = (ID_ExcCode == 5'b0) ? ID_instr : 32'b0;
     assign PC_PLUS_EIGHT = ID_PC + 32'd8;
     assign ID_RD1 = RD1;
     assign ID_RD2 = RD2;

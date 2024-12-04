@@ -54,7 +54,7 @@ module IF_ID(
         end
         else if (enable)begin
             if (flush)begin
-                ID_PC <= 32'h3000;
+                ID_PC <= ID_PC;
                 ID_instr <= 32'h0;
                 ID_ExcCode <= 5'b0;
                 ID_BD <= 1'b0;

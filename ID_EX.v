@@ -81,14 +81,14 @@
       end
       else if (enable) begin
         if (flush)begin
-          EX_PC <= 32'h3000;
+          EX_PC <= ID_PC;
           EX_instr <= 32'b0;
           EX_RD1 <= 32'b0;
           EX_RD2 <= 32'b0;
           EX_imm32 <= 32'b0;
           EX_A3 <= 5'b0;
           EX_WD <= 32'b0;
-          EX_BD <= 1'b0;
+          EX_BD <= ID_BD;
           EX_ExcCode = 5'b0;    
         end
         else begin
